@@ -166,14 +166,14 @@ gzip -c -d /media/ramdisk/Q1.Public.DNSLogzip.txt.dlz.gz > /media/ramdisk/Q1.Pub
 	
 	
 - **Result for Q1:**
-	  ![](https://github.com/dyunwei/DNSLogzip/blob/main/img/Q1.png)
+	  ![](img/Q1.png)
 	  
 	**Note**: Compression and decompression speeds are susceptible to runtime environment. The Compression ratios of DNSLogzip and general compressors should be reproducible.
 	  
 - **Result for Q2:**
 	
 	<div align="center">
-	<img src="https://github.com/dyunwei/DNSLogzip/blob/main/img/Q2.png" width="50%">
+	<img src="img/Q2.png" width="50%">
 	</div>
 	
 	**Note**: M0x0 indicates "No techniques applied"; M0x03 indicates "Use only the Data Transformer"; M0x7F indicates "Use full DNSLogzip (Data Transformer + Data Reducer)"
@@ -181,6 +181,6 @@ gzip -c -d /media/ramdisk/Q1.Public.DNSLogzip.txt.dlz.gz > /media/ramdisk/Q1.Pub
 - **Result for Q3**
 	
 	<div align="center">
-		<img src="https://github.com/dyunwei/DNSLogzip/blob/main/img/Q3L.png" width="50%">
-		<img src="https://github.com/dyunwei/DNSLogzip/blob/main/img/Q3E.png" width="50%">
+		<img src="img/Q3L.png" width="50%">
+		<img src="img/Q3E.png" width="50%">
 	</div>
