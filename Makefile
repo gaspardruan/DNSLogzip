@@ -13,7 +13,7 @@ MACRO =
 CXX := g++ -g -ggdb3 -Wall -std=c++11 -Wfatal-errors
 CXXFLAGS := -O3
 CCOBJFLAGS := $(CXXFLAGS) -I $(INC_PATH) -c $(MACRO)
-LDFLAGS := -lm
+LDFLAGS := -lm -lz
 
 # install macros
 PREFIX ?= /usr/local
@@ -36,7 +36,7 @@ $(OBJ_PATH)/%.o: $(SRC_PATH)/%.c* $(INC_PATH)/*.h*
 	$(CXX) $(CCOBJFLAGS) -o $@ $<
 
 $(TARGET): $(OBJS)
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(OBJS)
+	$(CXX) $(CXXFLAGS) $(OBJS) -o $@ $(LDFLAGS)
 
 # phony rules
 .PHONY: makedir

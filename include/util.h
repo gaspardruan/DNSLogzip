@@ -9,6 +9,8 @@
 #include <arpa/inet.h>
 #include <sys/socket.h>
 #include <tgmath.h>
+#include <cstddef>
+#include <sys/types.h>
 
 #define COLS_MAX_NUM 4096
 #define TOKEN_BUF_SIZE 4096 + 512
@@ -53,6 +55,10 @@ char *
 dlz_inet6_ntop(u_char *p, char *text, size_t len);
 int dzl_inet_pton(u_char *text, size_t len, in_addr_t &addr);
 int dzl_inet6_pton(u_char *p, size_t len, u_char *addr);
+
+void dlz_out_init(void);
+ssize_t dlz_out_write(const void *data, size_t len);
+void dlz_out_close(void);
 
 static inline char *dlz_itoa(char *s, uint64_t x)
 {

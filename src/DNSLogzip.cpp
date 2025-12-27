@@ -682,7 +682,7 @@ void DNSLogzipC::output_record_locs(void)
 		if (s >= ef)
 		{
 			*s++ = '\n';
-			write(STDOUT_FILENO, b, s - b);
+			dlz_out_write(b, s - b);
 			s = b;
 		}
 	}
@@ -690,7 +690,7 @@ void DNSLogzipC::output_record_locs(void)
 	std::strcpy(s, HEADER_END_INDICATOR_LF);
 	s += sizeof(HEADER_END_INDICATOR_LF) - 1;
 
-	write(STDOUT_FILENO, b, s - b);
+	dlz_out_write(b, s - b);
 }
 
 void DNSLogzipC::output_rraddr_locs(void)
@@ -723,7 +723,7 @@ void DNSLogzipC::output_rraddr_locs(void)
 			/* The last space should be removed. */
 			s--;
 			*s++ = '\n';
-			write(STDOUT_FILENO, b, s - b);
+			dlz_out_write(b, s - b);
 			s = b;
 		}
 	}
@@ -737,7 +737,7 @@ void DNSLogzipC::output_rraddr_locs(void)
 	std::strcpy(s, HEADER_END_INDICATOR_LF);
 	s += sizeof(HEADER_END_INDICATOR_LF) - 1;
 
-	write(STDOUT_FILENO, b, s - b);
+	dlz_out_write(b, s - b);
 }
 
 void DNSLogzipC::output(void)
@@ -897,14 +897,14 @@ void DNSLogzipC::output(void)
 
 		if (s > ef)
 		{
-			write(STDOUT_FILENO, b, s - b);
+			dlz_out_write(b, s - b);
 			s = b;
 		}
 	}
 
 	if (s != b)
 	{
-		write(STDOUT_FILENO, b, s - b);
+		dlz_out_write(b, s - b);
 	}
 }
 

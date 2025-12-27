@@ -11,6 +11,7 @@ unsigned int g_uFuncMask = 0xFF;
 unsigned int g_uLineSortingBufSize = 30000;
 unsigned char g_ucBaseNum = 32;
 unsigned char g_ucLocStrFixedLen = 5;
+bool ENABLE_GZIP_OUTPUT = false;
 
 void usage()
 {
@@ -49,7 +50,7 @@ int main(int argc, char *argv[])
 {
 	bool bDecompression = false;
 	int o;
-	const char *sOption = "HhDE:M:L:";
+	const char *sOption = "HhDZE:M:L:";
 
 	char rbuf[TOKEN_BUF_SIZE];
 	dlz_row_t row;
@@ -71,6 +72,9 @@ int main(int argc, char *argv[])
 			break;
 		case 'E':
 			g_ucBaseNum = (unsigned char)std::stoi(optarg);
+			break;
+		case 'Z':
+			ENABLE_GZIP_OUTPUT = true;
 			break;
 		case 'h':
 		case 'H':
@@ -102,6 +106,8 @@ int main(int argc, char *argv[])
 	b.pos = b.start;
 	b.last = b.start;
 
+	dlz_out_init();
+
 	if (bDecompression)
 	{
 		reducer = new DNSLogzipD();
@@ -117,6 +123,7 @@ int main(int argc, char *argv[])
 	}
 
 	reducer->Finish();
+	dlz_out_close();
 
 #ifndef NDEBUG
 	std::cerr << "done." << std::endl;

@@ -13,6 +13,8 @@ extern unsigned char g_ucBaseNum;
 extern unsigned char g_ucLocStrFixedLen;
 extern unsigned int g_ucAddrSearchRange;
 
+extern bool ENABLE_GZIP_OUTPUT;
+
 /* space 32 */
 #define RAW_LOG_DELIMITER 9
 /* tab 9 */

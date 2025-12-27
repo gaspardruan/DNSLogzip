@@ -1,6 +1,8 @@
 #include <iostream>
 #include <Config.hpp>
 #include <util.h>
+#include <zlib.h>
+#include <unistd.h>
 
 int dlz_read_line(dlz_row_t *row, dlz_buf_t *b)
 {
@@ -346,4 +348,47 @@ int dzl_inet6_pton(u_char *p, size_t len, u_char *addr)
 	}
 
 	return INVALID_ADDR;
+}
+
+static gzFile g_out_gz = nullptr;
+
+void dlz_out_init(void)
+{
+	if (!ENABLE_GZIP_OUTPUT)
+		return;
+
+	int fd = dup(STDOUT_FILENO);
+	g_out_gz = gzdopen(fd, "wb");
+	assert(g_out_gz != nullptr);
+
+	// 可选：更大的 buffer
+	// gzbuffer(g_out_gz, 1 << 20);
+}
+
+ssize_t dlz_out_write(const void *data, size_t len)
+{
+	if (!ENABLE_GZIP_OUTPUT)
+	{
+		return write(STDOUT_FILENO, data, len);
+	}
+
+	int n = gzwrite(g_out_gz, data, (unsigned)len);
+	if (n == 0)
+	{
+		int errnum = 0;
+		gzerror(g_out_gz, &errnum);
+		return -1;
+	}
+	return n;
+}
+
+void dlz_out_close(void)
+{
+	if (!ENABLE_GZIP_OUTPUT)
+		return;
+	if (g_out_gz)
+	{
+		gzclose(g_out_gz); // 内部会 Z_FINISH
+		g_out_gz = nullptr;
+	}
 }
