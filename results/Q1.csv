@@ -1,0 +1,4 @@
+DatasetName,DNSLogzip(gzip)(CR),DNSLogzip(gzip)(CS),DNSLogzip(gzip)(DS),DNSLogzip(bzip2)(CR),DNSLogzip(bzip2)(CS),DNSLogzip(bzip2)(DS),DNSLogzip(lzma)(CR),DNSLogzip(lzma)(CS),DNSLogzip(lzma)(DS),gzip(CR),gzip(CS),gzip(DS),bzip2(CR),bzip2(CS),bzip2(DS),lzma(CR),lzma(CS),lzma(DS)
+ISP-23,10.79,80.42,202.26,12.83,46.26,108.05,18.74,10.66,163.29,4.73,54.69,310.81,9.07,20.99,71.24,12.90,3.36,230.00
+ISP-24,10.16,76.05,202.39,12.13,45.54,105.52,17.81,10.10,162.09,4.66,53.39,309.74,8.76,20.75,69.74,12.72,3.32,223.05
+Public,12.11,76.80,193.97,13.91,38.29,106.81,19.22,8.86,142.58,6.96,70.83,380.75,10.90,19.23,94.66,13.64,4.03,204.18
