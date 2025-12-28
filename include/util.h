@@ -28,9 +28,6 @@
 
 #define LF '\n'
 
-#define DLZH 0x485A4C44
-#define DLZT 0x545A4C44
-
 typedef struct
 {
 	int fd;

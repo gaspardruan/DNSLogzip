@@ -12,6 +12,8 @@
 
 #define HEADER_END_INDICATOR "-end-"
 #define HEADER_END_INDICATOR_LF "\n-end-\n"
+#define DLZH "#DLZH"
+#define DLZT "#DLZT"
 
 /***************Simple memory pool***************/
 
@@ -977,15 +979,21 @@ void DNSLogzipC::Finish(bool bLast)
 		return;
 	}
 
-	if (!this->bBlockOpen)
+	if (ENABLE_GZIP_FULL_FLUSH && !this->bBlockOpen)
 	{
-		DLZBlockHeader h{};
-		h.magic = DLZH;
-		h.version = 1;
-		h.flags = 0;
-		h.blockId = this->uBlockId;
+		char buf[128];
+		char *s = buf;
+		std::strcpy(s, DLZH);
+		s += sizeof(DLZH) - 1;
+		*s++ = DNSLOGZIP_DELIMITER;
+		s = ConvertBaseNumToText(1, s, 2);
+		*s++ = DNSLOGZIP_DELIMITER;
+		s = ConvertBaseNumToText(this->uBlockId, s, 12);
+		*s++ = DNSLOGZIP_DELIMITER;
+		s = ConvertBaseNumToText(0, s, 2);
+		*s++ = '\n';
 
-		dlz_out_write_meta(&h, sizeof(h));
+		dlz_out_write(buf, s - buf);
 		dlz_out_block_payload_begin();
 
 		this->uBlockChunkCount = 0;
@@ -999,20 +1007,27 @@ void DNSLogzipC::Finish(bool bLast)
 	this->uBlockChunkCount++;
 	bool lastChunkInBlock = ENABLE_GZIP_FULL_FLUSH && this->uBlockChunkCount == GZIP_FULL_FLUSH_EVERY_N_CHUNKS;
 
-	if (lastChunkInBlock || bLast)
+	if (ENABLE_GZIP_FULL_FLUSH && (lastChunkInBlock || bLast))
 	{
 		uint64_t payloadBytes = 0;
 		uint32_t payloadCrc = 0;
 		dlz_out_block_payload_end(&payloadBytes, &payloadCrc);
 
-		DLZBlockTrailer t{};
-		t.magic = DLZT;
-		t.blockId = uBlockId;
-		t.payloadBytes = payloadBytes;
-		t.chunkCount = uBlockChunkCount;
-		t.payloadCrc32 = payloadCrc;
+		char buf[128];
+		char *s = buf;
+		std::strcpy(s, DLZT);
+		s += sizeof(DLZH) - 1;
+		*s++ = DNSLOGZIP_DELIMITER;
+		s = ConvertBaseNumToText(this->uBlockId, s, 12);
+		*s++ = DNSLOGZIP_DELIMITER;
+		s = ConvertBaseNumToText(this->uBlockChunkCount, s, 12);
+		*s++ = DNSLOGZIP_DELIMITER;
+		s = ConvertBaseNumToText(payloadBytes, s, 21);
+		*s++ = DNSLOGZIP_DELIMITER;
+		s = ConvertBaseNumToText(payloadCrc, s, 12);
+		*s++ = '\n';
 
-		dlz_out_write_meta(&t, sizeof(t));
+		dlz_out_write(buf, s - buf);
 
 		// last block is closed, so no need to flush.
 		if (!bLast)
@@ -1058,6 +1073,33 @@ DNSLogzipD::~DNSLogzipD()
 
 void DNSLogzipD::Process(dlz_row_t *row)
 {
+	if (row->ncols >= 4 && row->cols[0].len >= 1 && row->cols[0].data[0] == '#')
+	{
+		// Header
+		if (row->ncols == 4 &&
+				std::strncmp(row->cols[0].data, "#DLZH", row->cols[0].len) == 0)
+		{
+			uint32_t version = (uint32_t)ConvertTextToBaseNum(row->cols[1].data, row->cols[1].len);
+			uint64_t blockId = ConvertTextToBaseNum(row->cols[2].data, row->cols[2].len);
+			uint32_t flags = (uint32_t)ConvertTextToBaseNum(row->cols[3].data, row->cols[3].len);
+
+			// TODO: 校验
+			return;
+		}
+
+		// Trailer
+		if (row->ncols == 5 &&
+				std::strncmp(row->cols[0].data, "#DLZT", row->cols[0].len) == 0)
+		{
+			uint64_t blockId = ConvertTextToBaseNum(row->cols[1].data, row->cols[1].len);
+			uint32_t chunks = (uint32_t)ConvertTextToBaseNum(row->cols[2].data, row->cols[2].len);
+			uint64_t bytes = ConvertTextToBaseNum(row->cols[3].data, row->cols[3].len);
+			uint32_t crc = (uint32_t)ConvertTextToBaseNum(row->cols[4].data, row->cols[4].len);
+			// TODO: 校验
+			return;
+		}
+	}
+
 	DNSRecordD *record = this->records[this->uLineID];
 
 	if (ENABLE_LINE_SORTING && !this->bReadRecordLocDone)
