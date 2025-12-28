@@ -283,7 +283,6 @@ DNSLogzipC::DNSLogzipC(void) : DNSLogzip()
 	// TODO 有问题
 	this->recordElems = p;
 
-	this->uChunkOutCount = 0;
 	return;
 }
 
@@ -978,13 +977,52 @@ void DNSLogzipC::Finish(bool bLast)
 		return;
 	}
 
+	if (!this->bBlockOpen)
+	{
+		DLZBlockHeader h{};
+		h.magic = DLZH;
+		h.version = 1;
+		h.flags = 0;
+		h.blockId = this->uBlockId;
+
+		dlz_out_write_meta(&h, sizeof(h));
+		dlz_out_block_payload_begin();
+
+		this->uBlockChunkCount = 0;
+		this->bBlockOpen = true;
+	}
+
 	this->do_record_sorting();
 	/* Output compressed data */
 	this->output();
 
-	this->uChunkOutCount++;
-	if (ENABLE_GZIP_FULL_FLUSH && this->uChunkOutCount % GZIP_FULL_FLUSH_EVERY_N_CHUNKS == 0 && !bLast)
-		dlz_out_full_flush();
+	this->uBlockChunkCount++;
+	bool lastChunkInBlock = ENABLE_GZIP_FULL_FLUSH && this->uBlockChunkCount == GZIP_FULL_FLUSH_EVERY_N_CHUNKS;
+
+	if (lastChunkInBlock || bLast)
+	{
+		uint64_t payloadBytes = 0;
+		uint32_t payloadCrc = 0;
+		dlz_out_block_payload_end(&payloadBytes, &payloadCrc);
+
+		DLZBlockTrailer t{};
+		t.magic = DLZT;
+		t.blockId = uBlockId;
+		t.payloadBytes = payloadBytes;
+		t.chunkCount = uBlockChunkCount;
+		t.payloadCrc32 = payloadCrc;
+
+		dlz_out_write_meta(&t, sizeof(t));
+
+		// last block is closed, so no need to flush.
+		if (!bLast)
+			dlz_out_full_flush();
+
+		// close block
+		this->uBlockId++;
+		this->bBlockOpen = false;
+		this->uBlockChunkCount = 0;
+	}
 
 	/* Next time, process the first element in the buffer. */
 	this->uLineID = 0;

@@ -186,6 +186,23 @@ struct DNSRecordD : public DNSRecord
 	std::string sServerIP;
 };
 
+struct DLZBlockHeader
+{
+	uint32_t magic; // 'DLZH' = 0x484C5A44
+	uint16_t version;
+	uint16_t flags;
+	uint64_t blockId;
+};
+
+struct DLZBlockTrailer
+{
+	uint32_t magic; // 'DLZT' = 0x545A5A44 ("DLZT")
+	uint64_t blockId;
+	uint64_t payloadBytes; // block payload 解压后字节数（不含 header/trailer）
+	uint32_t chunkCount;
+	uint32_t payloadCrc32;
+};
+
 class DNSLogzip
 {
 public:
@@ -214,7 +231,9 @@ private:
 	DNSRecordC **records;
 	DNSRecordC *recordElems;
 
-	uint64_t uChunkOutCount;
+	uint64_t uBlockId = 0;
+	uint32_t uBlockChunkCount = 0;
+	bool bBlockOpen = false;
 
 	/* helper */
 	char *print_cnames(char *s, const StrDNSRRSet &rrset);

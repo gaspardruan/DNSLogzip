@@ -28,6 +28,9 @@
 
 #define LF '\n'
 
+#define DLZH 0x485A4C44
+#define DLZT 0x545A4C44
+
 typedef struct
 {
 	int fd;
@@ -61,6 +64,11 @@ ssize_t dlz_out_write(const void *data, size_t len);
 void dlz_out_close(void);
 
 void dlz_out_full_flush(void);
+
+void dlz_out_block_payload_begin();
+void dlz_out_block_payload_end(uint64_t *bytes, uint32_t *crc);
+
+ssize_t dlz_out_write_meta(const void *data, size_t len); // write header/trailer
 
 static inline char *dlz_itoa(char *s, uint64_t x)
 {

@@ -351,6 +351,9 @@ int dzl_inet6_pton(u_char *p, size_t len, u_char *addr)
 }
 
 static gzFile g_out_gz = nullptr;
+static bool g_payload_active = false;
+static uint64_t g_payload_bytes = 0;
+static uint32_t g_payload_crc = 0;
 
 void dlz_out_init(void)
 {
@@ -367,6 +370,12 @@ void dlz_out_init(void)
 
 ssize_t dlz_out_write(const void *data, size_t len)
 {
+	if (g_payload_active && data && len)
+	{
+		g_payload_bytes += (uint64_t)len;
+		g_payload_crc = crc32(g_payload_crc, (const Bytef *)data, (uInt)len);
+	}
+
 	if (!ENABLE_GZIP_OUTPUT)
 	{
 		return write(STDOUT_FILENO, data, len);
@@ -403,4 +412,25 @@ void dlz_out_full_flush(void)
 		return;
 
 	gzflush(g_out_gz, Z_FULL_FLUSH);
+}
+
+void dlz_out_block_payload_begin()
+{
+	g_payload_active = true;
+	g_payload_bytes = 0;
+	g_payload_crc = crc32(0L, Z_NULL, 0);
+}
+
+void dlz_out_block_payload_end(uint64_t *bytes, uint32_t *crc)
+{
+	g_payload_active = false;
+	if (bytes)
+		*bytes = g_payload_bytes;
+	if (crc)
+		*crc = g_payload_crc;
+}
+
+ssize_t dlz_out_write_meta(const void *data, size_t len)
+{
+	return dlz_out_write(data, len);
 }
