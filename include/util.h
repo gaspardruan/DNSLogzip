@@ -60,6 +60,8 @@ void dlz_out_init(void);
 ssize_t dlz_out_write(const void *data, size_t len);
 void dlz_out_close(void);
 
+void dlz_out_full_flush(void);
+
 static inline char *dlz_itoa(char *s, uint64_t x)
 {
 	int n, i;

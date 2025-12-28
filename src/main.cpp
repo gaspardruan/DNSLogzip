@@ -12,6 +12,8 @@ unsigned int g_uLineSortingBufSize = 30000;
 unsigned char g_ucBaseNum = 32;
 unsigned char g_ucLocStrFixedLen = 5;
 bool ENABLE_GZIP_OUTPUT = false;
+bool ENABLE_GZIP_FULL_FLUSH = false;
+int GZIP_FULL_FLUSH_EVERY_N_CHUNKS = 16;
 
 void usage()
 {
@@ -50,7 +52,7 @@ int main(int argc, char *argv[])
 {
 	bool bDecompression = false;
 	int o;
-	const char *sOption = "HhDZE:M:L:";
+	const char *sOption = "HhDZE:M:L:FN:";
 
 	char rbuf[TOKEN_BUF_SIZE];
 	dlz_row_t row;
@@ -75,6 +77,14 @@ int main(int argc, char *argv[])
 			break;
 		case 'Z':
 			ENABLE_GZIP_OUTPUT = true;
+			break;
+		case 'F':
+			ENABLE_GZIP_FULL_FLUSH = true;
+			break;
+		case 'N':
+			GZIP_FULL_FLUSH_EVERY_N_CHUNKS = std::stoi(optarg);
+			if (GZIP_FULL_FLUSH_EVERY_N_CHUNKS <= 0)
+				GZIP_FULL_FLUSH_EVERY_N_CHUNKS = 16;
 			break;
 		case 'h':
 		case 'H':
@@ -122,7 +132,7 @@ int main(int argc, char *argv[])
 		reducer->Process(&row);
 	}
 
-	reducer->Finish();
+	reducer->Finish(true);
 	dlz_out_close();
 
 #ifndef NDEBUG

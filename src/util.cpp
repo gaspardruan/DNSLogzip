@@ -392,3 +392,15 @@ void dlz_out_close(void)
 		g_out_gz = nullptr;
 	}
 }
+
+void dlz_out_full_flush(void)
+{
+	if (!ENABLE_GZIP_OUTPUT)
+		return;
+	if (!ENABLE_GZIP_FULL_FLUSH)
+		return;
+	if (!g_out_gz)
+		return;
+
+	gzflush(g_out_gz, Z_FULL_FLUSH);
+}

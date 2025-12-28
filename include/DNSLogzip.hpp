@@ -190,7 +190,7 @@ class DNSLogzip
 {
 public:
 	virtual void Process(dlz_row_t *row) = 0;
-	virtual void Finish(void) = 0;
+	virtual void Finish(bool bLast) = 0;
 
 protected:
 	uint16_t uLineID;
@@ -213,6 +213,8 @@ class DNSLogzipC : public DNSLogzip
 private:
 	DNSRecordC **records;
 	DNSRecordC *recordElems;
+
+	uint64_t uChunkOutCount;
 
 	/* helper */
 	char *print_cnames(char *s, const StrDNSRRSet &rrset);
@@ -241,7 +243,7 @@ public:
 	~DNSLogzipC(void);
 
 	void Process(dlz_row_t *row);
-	void Finish(void);
+	void Finish(bool bLast = false);
 };
 
 class DNSLogzipD : public DNSLogzip
@@ -274,7 +276,7 @@ public:
 	DNSLogzipD(void);
 	~DNSLogzipD(void);
 	void Process(dlz_row_t *row);
-	void Finish(void);
+	void Finish(bool bLast = false);
 };
 
 #endif

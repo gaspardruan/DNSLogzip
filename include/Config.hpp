@@ -14,6 +14,8 @@ extern unsigned char g_ucLocStrFixedLen;
 extern unsigned int g_ucAddrSearchRange;
 
 extern bool ENABLE_GZIP_OUTPUT;
+extern bool ENABLE_GZIP_FULL_FLUSH;
+extern int GZIP_FULL_FLUSH_EVERY_N_CHUNKS;
 
 /* space 32 */
 #define RAW_LOG_DELIMITER 9

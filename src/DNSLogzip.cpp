@@ -283,6 +283,7 @@ DNSLogzipC::DNSLogzipC(void) : DNSLogzip()
 	// TODO 有问题
 	this->recordElems = p;
 
+	this->uChunkOutCount = 0;
 	return;
 }
 
@@ -970,7 +971,7 @@ void DNSLogzipC::Process(dlz_row_t *row)
 	return;
 }
 
-void DNSLogzipC::Finish(void)
+void DNSLogzipC::Finish(bool bLast)
 {
 	if (0 == this->uLineID)
 	{
@@ -980,6 +981,11 @@ void DNSLogzipC::Finish(void)
 	this->do_record_sorting();
 	/* Output compressed data */
 	this->output();
+
+	this->uChunkOutCount++;
+	if (ENABLE_GZIP_FULL_FLUSH && this->uChunkOutCount % GZIP_FULL_FLUSH_EVERY_N_CHUNKS == 0 && !bLast)
+		dlz_out_full_flush();
+
 	/* Next time, process the first element in the buffer. */
 	this->uLineID = 0;
 
@@ -1044,7 +1050,7 @@ void DNSLogzipD::Process(dlz_row_t *row)
 	}
 }
 
-void DNSLogzipD::Finish(void)
+void DNSLogzipD::Finish(bool bLast)
 {
 	if (0 == this->uLineID)
 	{
