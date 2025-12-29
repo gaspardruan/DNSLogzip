@@ -236,7 +236,7 @@ private:
 	bool bBlockOpen = false;
 
 	uint64_t uFileId = 0;
-	uint32_t uBlockInFile = 0;
+	uint32_t uFileBlockIndex = 0;
 
 	/* helper */
 	char *print_cnames(char *s, const StrDNSRRSet &rrset);

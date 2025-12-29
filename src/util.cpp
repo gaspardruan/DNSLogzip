@@ -403,6 +403,10 @@ void dlz_out_close(void)
 		gzclose(g_out_gz); // 内部会 Z_FINISH
 		g_out_gz = nullptr;
 	}
+	if (ENABLE_PARTITION && g_out_fd > 2)
+	{
+		close(g_out_fd);
+	}
 }
 
 void dlz_out_full_flush(void)

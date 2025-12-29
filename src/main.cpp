@@ -81,6 +81,7 @@ int main(int argc, char *argv[])
 			ENABLE_GZIP_OUTPUT = true;
 			break;
 		case 'F':
+			ENABLE_GZIP_OUTPUT = true;
 			ENABLE_GZIP_FULL_FLUSH = true;
 			break;
 		case 'N':
@@ -93,6 +94,8 @@ int main(int argc, char *argv[])
 			usage();
 			return 0;
 		case 'P':
+			ENABLE_GZIP_OUTPUT = true;
+			ENABLE_GZIP_FULL_FLUSH = true;
 			BLOCK_PER_FILE = std::stoi(optarg);
 			break;
 		case 'o':
@@ -125,18 +128,21 @@ int main(int argc, char *argv[])
 	b.last = b.start;
 
 	int out_fd = STDOUT_FILENO;
-	if (g_output_path != nullptr)
+	if (!ENABLE_PARTITION)
 	{
-		out_fd = open(g_output_path, O_CREAT | O_WRONLY | O_TRUNC, 0644);
-		if (out_fd < 0)
+		if (g_output_path != nullptr)
 		{
-			std::cerr << "open output file failed." << std::endl;
-			return 1;
+			out_fd = open(g_output_path, O_CREAT | O_WRONLY | O_TRUNC, 0644);
+			if (out_fd < 0)
+			{
+				std::cerr << "open output file failed." << std::endl;
+				return 1;
+			}
 		}
-	}
 
-	dlz_out_set_fd(out_fd);
-	dlz_out_init();
+		dlz_out_set_fd(out_fd);
+		dlz_out_init();
+	}
 
 	if (bDecompression)
 	{
@@ -155,7 +161,7 @@ int main(int argc, char *argv[])
 	reducer->Finish(true);
 	dlz_out_close();
 
-	if (!bDecompression && g_output_path != nullptr && BLOCK_PER_FILE == 0)
+	if (!ENABLE_PARTITION && !bDecompression && g_output_path != nullptr)
 	{
 		close(out_fd);
 	}

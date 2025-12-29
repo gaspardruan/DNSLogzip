@@ -12,6 +12,7 @@ extern unsigned int g_uLineSortingBufSize;
 extern unsigned char g_ucBaseNum;
 extern unsigned char g_ucLocStrFixedLen;
 extern unsigned int g_ucAddrSearchRange;
+extern const char *g_output_path;
 
 extern bool ENABLE_GZIP_OUTPUT;
 extern bool ENABLE_GZIP_FULL_FLUSH;

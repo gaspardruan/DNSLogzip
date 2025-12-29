@@ -949,7 +949,8 @@ inline void DNSLogzipC::do_time_differential(DNSRecordC *r)
 void DNSLogzipC::open_new_file()
 {
 	char fname[256];
-	snprintf(fname, sizeof(fname), "logp%04lu.dlz.gz", this->uFileId++);
+	snprintf(fname, sizeof(fname), "%s_%04lu.dlz.gz",
+					 g_output_path == nullptr ? "log" : g_output_path, this->uFileId++);
 	int fd = open(fname, O_CREAT | O_WRONLY | O_TRUNC, 0644);
 	assert(fd >= 0);
 
@@ -993,6 +994,12 @@ void DNSLogzipC::Finish(bool bLast)
 
 	if (ENABLE_GZIP_FULL_FLUSH && !this->bBlockOpen)
 	{
+		if (ENABLE_PARTITION && this->uFileBlockIndex % BLOCK_PER_FILE == 0)
+		{
+			this->open_new_file();
+		}
+		this->uFileBlockIndex++;
+
 		char buf[128];
 		char *s = buf;
 		std::strcpy(s, DLZH);
