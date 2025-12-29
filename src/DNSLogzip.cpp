@@ -946,6 +946,18 @@ inline void DNSLogzipC::do_time_differential(DNSRecordC *r)
 	}
 }
 
+void DNSLogzipC::open_new_file()
+{
+	char fname[256];
+	snprintf(fname, sizeof(fname), "logp%04lu.dlz.gz", this->uFileId++);
+	int fd = open(fname, O_CREAT | O_WRONLY | O_TRUNC, 0644);
+	assert(fd >= 0);
+
+	dlz_out_close();
+	dlz_out_set_fd(fd);
+	dlz_out_init();
+}
+
 void DNSLogzipC::Process(dlz_row_t *row)
 {
 	DNSRecordC *record = this->records[this->uLineID];

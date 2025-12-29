@@ -11,9 +11,11 @@ unsigned int g_uFuncMask = 0xFF;
 unsigned int g_uLineSortingBufSize = 30000;
 unsigned char g_ucBaseNum = 32;
 unsigned char g_ucLocStrFixedLen = 5;
+const char *g_output_path = nullptr;
 bool ENABLE_GZIP_OUTPUT = false;
 bool ENABLE_GZIP_FULL_FLUSH = false;
 int GZIP_FULL_FLUSH_EVERY_N_CHUNKS = 16;
+int BLOCK_PER_FILE = 0;
 
 void usage()
 {
@@ -52,7 +54,7 @@ int main(int argc, char *argv[])
 {
 	bool bDecompression = false;
 	int o;
-	const char *sOption = "HhDZE:M:L:FN:";
+	const char *sOption = "HhDZE:M:L:FN:P:o:";
 
 	char rbuf[TOKEN_BUF_SIZE];
 	dlz_row_t row;
@@ -90,6 +92,12 @@ int main(int argc, char *argv[])
 		case 'H':
 			usage();
 			return 0;
+		case 'P':
+			BLOCK_PER_FILE = std::stoi(optarg);
+			break;
+		case 'o':
+			g_output_path = optarg;
+			break;
 		case '?':
 			std::cerr << "error:incorrect option!\n"
 								<< "\terror optopt: " << optopt << "\n"
@@ -116,6 +124,18 @@ int main(int argc, char *argv[])
 	b.pos = b.start;
 	b.last = b.start;
 
+	int out_fd = STDOUT_FILENO;
+	if (g_output_path != nullptr)
+	{
+		out_fd = open(g_output_path, O_CREAT | O_WRONLY | O_TRUNC, 0644);
+		if (out_fd < 0)
+		{
+			std::cerr << "open output file failed." << std::endl;
+			return 1;
+		}
+	}
+
+	dlz_out_set_fd(out_fd);
 	dlz_out_init();
 
 	if (bDecompression)
@@ -134,6 +154,11 @@ int main(int argc, char *argv[])
 
 	reducer->Finish(true);
 	dlz_out_close();
+
+	if (!bDecompression && g_output_path != nullptr && BLOCK_PER_FILE == 0)
+	{
+		close(out_fd);
+	}
 
 #ifndef NDEBUG
 	std::cerr << "done." << std::endl;

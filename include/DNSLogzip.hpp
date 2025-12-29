@@ -235,12 +235,16 @@ private:
 	uint32_t uBlockChunkCount = 0;
 	bool bBlockOpen = false;
 
+	uint64_t uFileId = 0;
+	uint32_t uBlockInFile = 0;
+
 	/* helper */
 	char *print_cnames(char *s, const StrDNSRRSet &rrset);
 	char *print_rraddrs(char *s, const AddrDNSRRSet &rrset, DNSRecordC *record);
 	char *print_rraddr_locs(char *s, const AddrDNSRRSet &rrset);
 	char *print_sockaddr(char *s, const struct sockaddr_storage &addr);
 	char *print_hidden_fields(char *s, const DNSRecordC *r);
+	void open_new_file();
 
 	/* key steps */
 	void parse_rraddrs(dlz_str_t *cols, AddrDNSRRSet &rrset, uint8_t &i, uint8_t type);

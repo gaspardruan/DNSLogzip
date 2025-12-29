@@ -354,13 +354,16 @@ static gzFile g_out_gz = nullptr;
 static bool g_payload_active = false;
 static uint64_t g_payload_bytes = 0;
 static uint32_t g_payload_crc = 0;
+static int g_out_fd = STDOUT_FILENO;
 
 void dlz_out_init(void)
 {
 	if (!ENABLE_GZIP_OUTPUT)
 		return;
 
-	int fd = dup(STDOUT_FILENO);
+	assert(g_out_gz == nullptr);
+	int fd = dup(g_out_fd);
+	assert(fd >= 0);
 	g_out_gz = gzdopen(fd, "wb");
 	assert(g_out_gz != nullptr);
 
@@ -370,7 +373,7 @@ void dlz_out_init(void)
 
 ssize_t dlz_out_write(const void *data, size_t len)
 {
-	if (g_payload_active && data && len)
+	if (ENABLE_GZIP_FULL_FLUSH && g_payload_active && data && len)
 	{
 		g_payload_bytes += (uint64_t)len;
 		g_payload_crc = crc32(g_payload_crc, (const Bytef *)data, (uInt)len);
@@ -433,4 +436,9 @@ void dlz_out_block_payload_end(uint64_t *bytes, uint32_t *crc)
 ssize_t dlz_out_write_meta(const void *data, size_t len)
 {
 	return dlz_out_write(data, len);
+}
+
+void dlz_out_set_fd(int fd)
+{
+	g_out_fd = fd;
 }

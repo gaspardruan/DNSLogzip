@@ -11,6 +11,7 @@
 #include <tgmath.h>
 #include <cstddef>
 #include <sys/types.h>
+#include <fcntl.h>
 
 #define COLS_MAX_NUM 4096
 #define TOKEN_BUF_SIZE 4096 + 512
@@ -66,6 +67,8 @@ void dlz_out_block_payload_begin();
 void dlz_out_block_payload_end(uint64_t *bytes, uint32_t *crc);
 
 ssize_t dlz_out_write_meta(const void *data, size_t len); // write header/trailer
+
+void dlz_out_set_fd(int fd);
 
 static inline char *dlz_itoa(char *s, uint64_t x)
 {

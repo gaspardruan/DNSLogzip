@@ -16,6 +16,7 @@ extern unsigned int g_ucAddrSearchRange;
 extern bool ENABLE_GZIP_OUTPUT;
 extern bool ENABLE_GZIP_FULL_FLUSH;
 extern int GZIP_FULL_FLUSH_EVERY_N_CHUNKS;
+extern int BLOCK_PER_FILE;
 
 /* space 32 */
 #define RAW_LOG_DELIMITER 9
@@ -54,5 +55,6 @@ extern int GZIP_FULL_FLUSH_EVERY_N_CHUNKS;
 #define ENABLE_TIME_DIFFERENCE (g_uFuncMask & M_TIME_DIFFERENCE)
 #define ENABLE_FIELD_HIDDING (g_uFuncMask & M_FIELD_HIDING)
 #define ENABLE_FIELD_REPLACEMENT (g_uFuncMask & M_FIELD_REPLACEMENT)
+#define ENABLE_PARTITION (BLOCK_PER_FILE > 0)
 
 #endif
