@@ -15,6 +15,8 @@ from collections import defaultdict
 from time import strftime, localtime
 from pathlib import Path
 
+Version = 3
+
 def PrintMsg(msg):
     print('{} {}'.format(strftime("%Y-%m-%d %H:%M:%S: ", localtime()), msg), flush = True)
 
@@ -70,7 +72,7 @@ class Common:
     def __init__(self):
         self.workingDir = os.environ.get(self.WorkingDirEnvName)
         if self.workingDir is None or not os.path.isdir(self.workingDir):
-            print("{}: {} is not a directory.".format(WorkingDirEnvName, WorkingDir))
+            print("{}: {} is not a directory.".format(self.WorkingDirEnvName, self.workingDir))
             exit(1)
 
     def PrintUsage(self, sys):
@@ -82,7 +84,7 @@ class Common:
         
         if 2 == argc:
             if sys.argv[1] == '-h':
-                PrintUsage(sys)
+                self.PrintUsage(sys)
                 exit(0)
 
 class QExperiment(Common):
@@ -135,7 +137,10 @@ class QExperiment(Common):
             if 'LogArchive' == result.name :
                 result.compressedFileSize += CalcDirectorySize("/media/ramdisk/Archiver")
             else:
-                result.compressedFileSize += os.stat(compressedFilePath).st_size
+                # result.compressedFileSize += os.stat(compressedFilePath).st_size
+                result.compressedFileSize += sum(p.stat().st_size 
+                                                 for p in Path(compressedFilePath).parent.glob(Path(compressedFilePath).name)
+)
                 
             PrintMsg('No. {} compression command finished'.format(i))
         
