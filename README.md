@@ -188,6 +188,14 @@ gzip -c -d /media/ramdisk/Q1.Public.DNSLogzip.txt.dlz.gz > /media/ramdisk/Q1.Pub
 
 ## Stream-DNSLogzip
 
+```bash
+  -Z: 启用流式压缩模式
+  -L <number>: 设置每个chunk的日志条目数阈，默认值为30000
+  -N <number>: 设置每个block包含的chunk数量，默认值为16
+  -P <number>: 设置每个压缩文件包含的block数量，默认值为0，表示不切分文件
+  -o <path>: 设置压缩输出文件路径
+```
+
 ### Functional validation
 
 ```bash
