@@ -184,3 +184,36 @@ gzip -c -d /media/ramdisk/Q1.Public.DNSLogzip.txt.dlz.gz > /media/ramdisk/Q1.Pub
 		<img src="img/Q3L.png" width="50%">
 		<img src="img/Q3E.png" width="50%">
 	</div>
+
+
+## Stream-DNSLogzip
+
+### Functional validation
+
+```bash
+DNSLogzip -Z -o ISP-23.dlz.gz  < data/ISP-23/Log.txt 
+gunzip -c ISP-23.dlz.gz | DNSLogzip -D > ISP-23.log
+diff data/ISP-23/Log.txt ISP-23.log
+```
+
+```bash
+DNSLogzip -Z -F -P 2  -o ISP-23  < data/ISP-23/Log.txt 
+ gunzip -c ISP-23_000* | DNSLogzip -D  > ISP-23.log
+diff data/ISP-23/Log.txt ISP-23.log
+```
+
+### The impact of different N
+
+```
+python ./scripts/P1.py
+```
+
+See the results in `./results/P1.csv`
+
+### The impact of different P
+
+```
+python ./scripts/P2.py
+```
+
+See the results in `./results/P2.csv`
